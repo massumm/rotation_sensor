@@ -1,0 +1,56 @@
+package com.example.rotation_sensors;
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
+public class RotationVectorSensorHelper implements SensorEventListener {
+
+    private SensorManager sensorManager;
+    private Sensor rotationVectorSensor;
+    private RotationVectorListener rotationVectorListener;
+
+    public RotationVectorSensorHelper(Context context, RotationVectorListener listener) {
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        rotationVectorListener = listener;
+    }
+
+    public void startListening() {
+        sensorManager.registerListener(this, rotationVectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void stopListening() {
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            float[] rotationMatrix = new float[9];
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+
+            float[] orientationAngles = new float[3];
+            SensorManager.getOrientation(rotationMatrix, orientationAngles);
+
+            float xAngleDegrees = (float) Math.toDegrees(orientationAngles[0]);
+            float yAngleDegrees = (float) Math.toDegrees(orientationAngles[1]);
+            float zAngleDegrees = (float) Math.toDegrees(orientationAngles[2]);
+
+            // Call the callback method with the sensor data
+            rotationVectorListener.onRotationVectorChanged(xAngleDegrees, yAngleDegrees, zAngleDegrees);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Handle accuracy changes if needed
+    }
+
+    // Interface for the callback
+    public interface RotationVectorListener {
+        void onRotationVectorChanged(float x, float y, float z);
+    }
+}

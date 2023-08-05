@@ -14,7 +14,8 @@ public class RotationVectorSensorHelper implements SensorEventListener {
 
     public RotationVectorSensorHelper(Context context, RotationVectorListener listener) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        //   rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        rotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         rotationVectorListener = listener;
     }
 
@@ -28,16 +29,20 @@ public class RotationVectorSensorHelper implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            float[] rotationMatrix = new float[9];
-            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+//            float[] rotationMatrix = new float[9];
+//            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+//
+//            float[] orientationAngles = new float[3];
+//            SensorManager.getOrientation(rotationMatrix, orientationAngles);
+//
+//            float xAngleDegrees = (float) Math.toDegrees(orientationAngles[0]);
+//            float yAngleDegrees = (float) Math.toDegrees(orientationAngles[1]);
+//            float zAngleDegrees = (float) Math.toDegrees(orientationAngles[2]);
 
-            float[] orientationAngles = new float[3];
-            SensorManager.getOrientation(rotationMatrix, orientationAngles);
-
-            float xAngleDegrees = (float) Math.toDegrees(orientationAngles[0]);
-            float yAngleDegrees = (float) Math.toDegrees(orientationAngles[1]);
-            float zAngleDegrees = (float) Math.toDegrees(orientationAngles[2]);
+            float xAngleDegrees = (float) (event.values[0] * (180 / Math.PI));
+            float yAngleDegrees = (float) (event.values[1] * (180 / Math.PI));
+            float zAngleDegrees = (float) (event.values[2] * (180 / Math.PI));
 
             // Call the callback method with the sensor data
             rotationVectorListener.onRotationVectorChanged(xAngleDegrees, yAngleDegrees, zAngleDegrees);
